@@ -97,14 +97,14 @@ class Simulator:
 
 # Set up cmd line args
 parser = argparse.ArgumentParser(prog='N-player trust game simulator', description='Simulates the N-player trust game')
-parser.add_argument('--y1', type=float)
-parser.add_argument('--y2', type=float)
-parser.add_argument('--y3', type=float)
-parser.add_argument('--pop_size', type=int)
-parser.add_argument('--tv', type=float)
-parser.add_argument('--iters', type=int)
-parser.add_argument('--R1', type=float)
-parser.add_argument('--R2', type=float)
+parser.add_argument('--y1', type=float, help='Proportion of citizens')
+parser.add_argument('--y2', type=float, help='Proportion of trustworthy governors')
+parser.add_argument('--y3', type=float, help='Proportion of untrustworthy governors')
+parser.add_argument('--pop_size', type=int, help='Population size')
+parser.add_argument('--tv', type=float, help='Trusted value; how much a citizen pays')
+parser.add_argument('--iters', type=int, help='Number of rounds in simulation')
+parser.add_argument('--R1', type=float, help='Constant for trustworthy governors')
+parser.add_argument('--R2', type=float, help='Constant for untrustworthy governors')
 
 def main():
     args = parser.parse_args()
