@@ -47,15 +47,13 @@ class Simulator:
 
     def reproduce(self) -> None:
         """Generates the next generation of players based on fitness of current players."""
-        children = []
         fitnesses = [player.fitness for player in self.players]
         probs = [(fitness / sum(fitnesses)) for fitness in fitnesses]
         randoms = [random.random() for _ in range(len(fitnesses))]
 
         # reproduction is weighted by fitness
         choices = [rand <= prob for prob, rand in zip(probs, randoms)]
-        for (player, choice) in zip(self.players, choices):
-            children.append(player.reproduce(choice))
+        children = [player.reproduce(choice) for (player, choice) in zip(self.players, choices)]
         self.update_population(children)
 
     def update_population(self, children) -> None:
