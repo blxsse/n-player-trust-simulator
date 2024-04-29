@@ -1,13 +1,10 @@
 import random
-import numpy as np
-import pandas as pd
-import matplotlib
+import matplotlib.pyplot as plt
 import argparse
-import math
 from player import Player, Role
 
 class Simulator:
-    def __init__(self, y1: float, y2: float, y3: float, pop_size: int, tv: float, R1: float, R2: float) -> None:
+    def __init__(self, y1: float, y2: float, y3: float, pop_size: int, tv: float, R1: float, R2: float, iters: int) -> None:
         # population proportions must cover the whole population and evenly divide (to make my life easier...)
         assert y1+y2+y3 == 1
         if (y1 * pop_size % 1 != 0 or y2 * pop_size % 1 != 0 or y3 * pop_size % 1 != 0):
@@ -18,6 +15,7 @@ class Simulator:
         self.pop_size = pop_size
         self.tv = tv
         self.R1, self.R2 = R1, R2
+        self.iters = iters
 
         # compute population proportions
         self.x1, self.x2, self.x3 = self.y1 * self.pop_size, self.y2 * self.pop_size, self.y3 * self.pop_size
@@ -30,6 +28,9 @@ class Simulator:
             self.players.append(Player(Role.GOOD_GOVERNOR))
         for _ in range(self.x3):
             self.players.append(Player(Role.BAD_GOVERNOR))
+
+        # add history, for plotting
+        self.history = {'y1': [], 'y2': [], 'y3': []}
 
     def step(self) -> None:
         for player in self.players:
@@ -59,10 +60,26 @@ class Simulator:
         self.x1, self.x2, self.x3 = citizens, good, bad
         self.y1, self.y2, self.y3 = self.x1 / self.pop_size, self.x2 / self.pop_size, self.x3 / self.pop_size
 
-    def run(self, iters: int) -> None:
-        for _ in range(iters):
+    def run(self) -> None:
+        for _ in range(self.iters):
+            self.history['y1'].append(self.y1)
+            self.history['y2'].append(self.y2)
+            self.history['y3'].append(self.y3)
             self.step()
-        self.reproduce()
+            self.reproduce()
+        self.history['y1'].append(self.y1)
+        self.history['y2'].append(self.y2)
+        self.history['y3'].append(self.y3)
+
+    def plot(self) -> None:
+        plt.plot(range(self.iters), self.history['y1'], label='Citizens')
+        plt.plot(range(self.iters), self.history['y2'], label='Trustworthy governors')
+        plt.plot(range(self.iters), self.history['y3'], label='Untrustworthy governors')
+        plt.xlabel('Iter')
+        plt.ylabel('Proportion')
+        plt.title('N-player trust game simulation')
+        plt.legend()
+        plt.show()
 
 # Set up cmd line args
 parser = argparse.ArgumentParser(prog='N-player trust game simulator', description='Simulates the N-player trust game')
@@ -77,6 +94,7 @@ parser.add_argument('R2', type=float)
 
 def main():
     args = parser.parse_args()
-    simulator = Simulator(args.y1, args.y2, args.y3, args.pop_size, args.tv, args.R1, args.R2)
+    simulator = Simulator(args.y1, args.y2, args.y3, args.pop_size, args.tv, args.R1, args.R2, args.iters)
     
-    simulator.run(args.iters)
+    simulator.run()
+    simulator.plot()
