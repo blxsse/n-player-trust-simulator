@@ -1,10 +1,17 @@
-import random
-import matplotlib.pyplot as plt
 import argparse
-from player import Player, Role
+import random
+
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 
+from player import Player, Role
+
 class Simulator:
+    """Simulates an N-Player Trust Game with iters rounds and a population size of pop_size, evenly divided such that
+    y1 is the fraction of players who are citizens, y2 the fraction of trustworthy governors, and y3 the fraction of
+    untrustworthy governors. tv is the value citizens initially pay, while R1 and R2 are the constants used by the
+    trustworthy and untrustworthy governors, respectively."""
+
     def __init__(self, y1: float, y2: float, y3: float, pop_size: int, tv: float, R1: float, R2: float, iters: int) -> None:
         # population proportions must cover the whole population and evenly divide (to make my life easier...)
         assert y1+y2+y3 == 1
@@ -34,10 +41,12 @@ class Simulator:
         self.history = {'y1': [], 'y2': [], 'y3': []}
 
     def step(self) -> None:
+        """Updates each player's fitness based on their move according to their role."""
         for player in self.players:
             player.play(self.x1, self.x2, self.x3, self.tv, self.R1, self.R2)
 
     def reproduce(self) -> None:
+        """Generates the next generation of players based on fitness of current players."""
         children = []
         fitnesses = [player.fitness for player in self.players]
         probs = [(fitness / sum(fitnesses)) for fitness in fitnesses]
@@ -50,6 +59,7 @@ class Simulator:
         self.update_population(children)
 
     def update_population(self, children) -> None:
+        """Updates population proportions after reproduction."""
         citizens, good, bad = 0, 0, 0
         for child in children:
             if child.role == Role.CITIZEN:
@@ -62,6 +72,7 @@ class Simulator:
         self.y1, self.y2, self.y3 = self.x1 / self.pop_size, self.x2 / self.pop_size, self.x3 / self.pop_size
 
     def run(self) -> None:
+        """Runs the simulation and reproduction for given amount of iterations."""
         for _ in tqdm(range(self.iters)):
             self.history['y1'].append(self.y1)
             self.history['y2'].append(self.y2)
@@ -70,13 +81,18 @@ class Simulator:
             self.reproduce()
 
     def plot(self) -> None:
+        """Displays population proportions as a function of time."""
+        # set up plot
         plt.plot(range(self.iters), self.history['y1'], label='Citizens')
         plt.plot(range(self.iters), self.history['y2'], label='Trustworthy governors')
         plt.plot(range(self.iters), self.history['y3'], label='Untrustworthy governors')
+
+        # add labels and title
         plt.xlabel('Iter')
         plt.ylabel('Proportion')
         plt.title('N-player trust game simulation')
         plt.legend()
+
         plt.show()
 
 # Set up cmd line args
