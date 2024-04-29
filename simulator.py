@@ -2,6 +2,7 @@ import random
 import matplotlib.pyplot as plt
 import argparse
 from player import Player, Role
+from tqdm import tqdm
 
 class Simulator:
     def __init__(self, y1: float, y2: float, y3: float, pop_size: int, tv: float, R1: float, R2: float, iters: int) -> None:
@@ -18,7 +19,7 @@ class Simulator:
         self.iters = iters
 
         # compute population proportions
-        self.x1, self.x2, self.x3 = self.y1 * self.pop_size, self.y2 * self.pop_size, self.y3 * self.pop_size
+        self.x1, self.x2, self.x3 = int(self.y1 * self.pop_size), int(self.y2 * self.pop_size), int(self.y3 * self.pop_size)
 
         # add players to game
         self.players = []
@@ -39,11 +40,11 @@ class Simulator:
     def reproduce(self) -> None:
         children = []
         fitnesses = [player.fitness for player in self.players]
-        probs = [fitness / sum(fitnesses) for fitness in fitnesses]
+        probs = [(fitness / sum(fitnesses)) for fitness in fitnesses]
         randoms = [random.random() for _ in range(len(fitnesses))]
 
         # reproduction is weighted by fitness
-        choices = [prob <= random for prob, random in zip(probs, randoms)]
+        choices = [rand <= prob for prob, rand in zip(probs, randoms)]
         for (player, choice) in zip(self.players, choices):
             children.append(player.reproduce(choice))
         self.update_population(children)
@@ -61,15 +62,12 @@ class Simulator:
         self.y1, self.y2, self.y3 = self.x1 / self.pop_size, self.x2 / self.pop_size, self.x3 / self.pop_size
 
     def run(self) -> None:
-        for _ in range(self.iters):
+        for _ in tqdm(range(self.iters)):
             self.history['y1'].append(self.y1)
             self.history['y2'].append(self.y2)
             self.history['y3'].append(self.y3)
             self.step()
             self.reproduce()
-        self.history['y1'].append(self.y1)
-        self.history['y2'].append(self.y2)
-        self.history['y3'].append(self.y3)
 
     def plot(self) -> None:
         plt.plot(range(self.iters), self.history['y1'], label='Citizens')
@@ -83,14 +81,14 @@ class Simulator:
 
 # Set up cmd line args
 parser = argparse.ArgumentParser(prog='N-player trust game simulator', description='Simulates the N-player trust game')
-parser.add_argument('y1', type=float)
-parser.add_argument('y2', type=float)
-parser.add_argument('y3', type=float)
-parser.add_argument('pop_size', type=int)
-parser.add_argument('tv', type=float)
-parser.add_argument('iters', type=int)
-parser.add_argument('R1', type=float)
-parser.add_argument('R2', type=float)
+parser.add_argument('--y1', type=float)
+parser.add_argument('--y2', type=float)
+parser.add_argument('--y3', type=float)
+parser.add_argument('--pop_size', type=int)
+parser.add_argument('--tv', type=float)
+parser.add_argument('--iters', type=int)
+parser.add_argument('--R1', type=float)
+parser.add_argument('--R2', type=float)
 
 def main():
     args = parser.parse_args()
@@ -98,3 +96,6 @@ def main():
     
     simulator.run()
     simulator.plot()
+
+if __name__ == '__main__':
+    main()
