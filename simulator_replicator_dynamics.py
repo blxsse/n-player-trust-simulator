@@ -88,8 +88,6 @@ class Simulator:
                 plt.plot(x, y, marker='.', color='violet')
                 prev_x = x
                 prev_y = y
-            # if i > 0:
-                # plt.arrow(prev_x, prev_y, x - prev_x, y - prev_y, width=0.01, head_length=0.01, head_width=0.01)
             if i % 10 == 0 and i != 0:
                 plt.arrow(prev_x, prev_y, x - prev_x, y - prev_y, head_length=0.05, head_width=0.03, color='violet')
                 prev_x = x
