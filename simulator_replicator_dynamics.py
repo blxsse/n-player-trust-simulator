@@ -5,10 +5,12 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 def simplex_map(point):
+    """Generates coordinate of point in equilateral 1-length triangle simplex based on weights in point."""
     weighted_one = point[0] * 1, 0
     weighted_three = point[2] * 0.5, point[2] * math.sqrt(3) / 2
 
     return (weighted_one[0] + weighted_three[0]) , (weighted_one[1] + weighted_three[1]) 
+
 class Simulator:
     """Simulates an N-Player Trust Game with iters rounds and a population size of pop_size, evenly divided such that
     y1 is the fraction of players who are citizens, y2 the fraction of trustworthy governors, and y3 the fraction of
