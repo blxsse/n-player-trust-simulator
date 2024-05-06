@@ -15,9 +15,8 @@ class Simulator:
     untrustworthy governors. tv is the value citizens initially pay, while R1 and R2 are the constants used by the
     trustworthy and untrustworthy governors, respectively."""
 
-    def __init__(self, y1: float, y2: float, y3: float, tv: float, R1: float, R2: float, iters: int) -> None:
-        # population proportions must cover the whole population and evenly divide (to make my life easier...)
-        print(y1+y2+y3)
+    def __init__(self, y1: float, y2: float, y3: float, tv: float, R1: float, R2: float, iters: int, dt: float = 0.01) -> None:
+        # population proportions must cover the whole population
         assert abs(y1+y2+y3-1) < 0.0000000001
         
         # save some important vars
@@ -25,6 +24,7 @@ class Simulator:
         self.tv = tv
         self.R1, self.R2 = R1, R2
         self.iters = iters
+        self.dt = dt
 
         # add history, for plotting
         self.history = {'y1': [], 'y2': [], 'y3': []}
@@ -38,9 +38,9 @@ class Simulator:
         d_y1 = one * two + three * four 
         d_y2 = (self.y1 * self.y2 * self.tv)/(1 - self.y1) * (self.y2 * (1 - 2 * self.R1) + self.y3 * (1 - self.R2) + self.R1)
         d_y3 = (self.y1 * self.y3 * self.tv)/(1 - self.y1) * (self.y2 * (1 - 2 * self.R1) + self.y3 * (1 - self.R2) + self.R2)
-        self.y1 += d_y1 * 0.01
-        self.y2 += d_y2 * 0.01
-        self.y3 += d_y3 * 0.01
+        self.y1 += d_y1 * self.dt
+        self.y2 += d_y2 * self.dt
+        self.y3 += d_y3 * self.dt
 
         summing = self.y1 + self.y2 + self.y3
         self.y1 = self.y1 / summing
@@ -85,7 +85,7 @@ class Simulator:
         for i in range(len(self.history['y1'])):
             x, y = simplex_map((self.history['y1'][i], self.history['y2'][i], self.history['y3'][i]))
             if i == 0:
-                plt.plot(x, y, marker='.', color='blue')
+                plt.plot(x, y, marker='.', color='violet')
                 prev_x = x
                 prev_y = y
             # if i > 0:
@@ -110,6 +110,7 @@ parser.add_argument('--tv', type=float, help='Trusted value; how much a citizen 
 parser.add_argument('--iters', type=int, help='Number of rounds in simulation')
 parser.add_argument('--R1', type=float, help='Constant for trustworthy governors')
 parser.add_argument('--R2', type=float, help='Constant for untrustworthy governors')
+parser.add_argument('--dt', type=float, help='Timestep size for using replicator differential equation, defaults to 0.01')
 
 def main():
     args = parser.parse_args()
